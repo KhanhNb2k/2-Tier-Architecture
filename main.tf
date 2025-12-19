@@ -1,46 +1,46 @@
-resource "aws_vpc" "my_vpc"{
-    cidr_block = var.vpc_cidr
-    tags = {
-        Name = "${var.project_name}-vpc"
-    }
+resource "aws_vpc" "my_vpc" {
+  cidr_block = var.vpc_cidr
+  tags = {
+    Name = "${var.project_name}-vpc"
+  }
 }
 
-resource "aws_subnet" "my_private_subnet" {
-    vpc_id = aws_vpc.my_vpc.vpc_id
-    cidr_block = var.private_cidr
-    availability_zone = var.az1
-    tags = {
-        Name = "${var.project_name}-private-subnet"
-    }
+resource "aws_subnet" "private_subnet" {
+  vpc_id            = aws_vpc.my_vpc.id
+  cidr_block        = var.private_cidr
+  availability_zone = var.az1
+  tags = {
+    Name = "${var.project_name}-private-subnet"
+  }
 }
 
-resource "aws_subnet" "my_public_subnet" {
-    vpc_id = aws_vpc.my_vpc.vpc_id
-    cidr_block = var.public_cidr
-    availability_zone = var.az2
-    tags = {
-        Name = "${var.project_name}-public-subnet"
-    }
+resource "aws_subnet" "public_subnet" {
+  vpc_id            = aws_vpc.my_vpc.id
+  cidr_block        = var.public_cidr
+  availability_zone = var.az2
+  tags = {
+    Name = "${var.project_name}-public-subnet"
+  }
 }
 
-resource "aws_igw" "my_igw" {
-    vpc_id = aws_vpc.my_vpc.vpc_id
-    tags = {
-        Name = "${var.project_name}-igw"
-    }
+resource "aws_internet_gateway" "my_igw" {
+  vpc_id = aws_vpc.my_vpc.id
+  tags = {
+    Name = "${var.project_name}-IGW"
+  }
 }
 
-resource "aws_default_rtb" "main_route" {
-    default_rtb_id = aws_vpc.my_vpc.default_rtb_id
-    tags = {
-        Name = "${var.project_name}-main-route"
-    }
+resource "aws_default_route_table" "main_RT" {
+  default_route_table_id = aws_vpc.my_vpc.default_route_table_id
+  tags = {
+    Name = "${var.project_name}-main-RT"
+  }
 }
 
-resource "aws_rtb" "my_rtb" {
-    rtb_id = aws_default_rtb.main_route.id
-    destination_cidr_block = var.igw_cidr
-    gateway_id = aws_igw.my_igw.id
+resource "aws_route" "aws_route" {
+  route_table_id         = aws_default_route_table.main_RT.id
+  destination_cidr_block = var.igw_cidr
+  gateway_id             = aws_internet_gateway.my_igw.id
 }
 
 resource "aws_security_group" "my_sg" {
